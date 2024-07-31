@@ -1,10 +1,9 @@
 import 'dart:io';
-import './services/hive_service.dart';
 import "./utils/command_parser.dart";
+import "./utils/db_executor.dart";
 
 Future<void> main(List<String> arguments) async {
-  await HiveService.init();
-
+  await DbHelper.handleInit();
   while (true) {
     stdout.write('\ndartDbCli> ');
     var input = stdin.readLineSync();

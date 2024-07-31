@@ -7,6 +7,7 @@ class DbService {
   static String baseUrl = 'http://localhost:3000';
   static String userCreateUrl = "$baseUrl/db/register";
   static String userLoginUrl = "$baseUrl/db/login";
+  static String queryExecutor = "$baseUrl/db/query";
   static Future<String> createUser({
     required String userName,
     required String password,
@@ -20,7 +21,7 @@ class DbService {
     );
     dynamic responseBody = json.decode(response.body);
     if (response.statusCode == 200) {
-      HiveService.saveDbStorage(
+      HiveService.saveDbCreds(
         userName: userName,
         password: password,
       );
@@ -43,7 +44,7 @@ class DbService {
     );
     dynamic responseBody = json.decode(response.body);
     if (response.statusCode == 200) {
-      HiveService.saveDbStorage(
+      HiveService.saveDbCreds(
         userName: userName,
         password: password,
       );
@@ -52,5 +53,24 @@ class DbService {
     return response.statusCode == 200
         ? "User Logged In Successfully"
         : responseBody["message"];
+  }
+
+  static Future<String> callQuery({
+    required String userName,
+    required String password,
+    required String query,
+  }) async {
+    http.Response response = await http.post(
+      Uri.parse(queryExecutor),
+      body: json.encode({
+        "userName": userName,
+        "password": password,
+        "query": query,
+      }),
+    );
+    dynamic responseBody = json.decode(response.body);
+    return response.statusCode == 200
+        ? "\n Message: ${responseBody["msg"]}\n Data:${responseBody["data"]}"
+        : "\n ${responseBody["message"]}";
   }
 }

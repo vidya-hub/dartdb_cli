@@ -1,9 +1,10 @@
 import 'package:hive/hive.dart';
 import 'dart:io';
+import '../utils/db_executor.dart';
 
 class HiveService {
   static final HiveService _instance = HiveService._internal();
-  static Box? _box;
+  static Box? _dbCredsBox;
   static final String userNameKey = "userName";
   static final String passwordKey = "password";
 
@@ -19,46 +20,53 @@ class HiveService {
   static Future<void> init() async {
     var path = Directory.current.path;
     Hive.init(path);
-    await _openBox("dartDb");
-    String? currentUserName = HiveService.getUserName;
-    if (currentUserName != null) {
-      stdout.writeln(" \n Hey $currentUserName!..");
-    }
+    await _openBox("dbCreds");
   }
 
   // Open a box
   static Future<Box> _openBox(String boxName) async {
-    if (_box == null || !_box!.isOpen) {
-      _box = await Hive.openBox(boxName);
+    if (_dbCredsBox == null || !_dbCredsBox!.isOpen) {
+      _dbCredsBox = await Hive.openBox(boxName);
     }
-    return _box!;
+    return _dbCredsBox!;
   }
 
   // Get the box
   static Box get box {
-    if (_box == null) {
+    if (_dbCredsBox == null) {
       throw Exception("Box is not opened. Call openBox() first.");
     }
-    return _box!;
+    return _dbCredsBox!;
   }
 
   // Close the box
-  Future<void> closeBox() async {
-    if (_box != null && _box!.isOpen) {
-      await _box!.close();
-      _box = null;
+  static Future<void> closeBox() async {
+    if (_dbCredsBox != null && _dbCredsBox!.isOpen) {
+      await _dbCredsBox!.close();
+      _dbCredsBox = null;
     }
   }
 
   static String? get getUserName {
-    return _box?.get(userNameKey);
+    return _dbCredsBox?.get(userNameKey);
   }
 
-  static saveDbStorage({
+  static String? get getPassword {
+    return _dbCredsBox?.get(passwordKey);
+  }
+
+  static saveDbCreds({
     required String userName,
     required String password,
   }) {
-    HiveService.box.put(userNameKey, userName);
-    HiveService.box.put(passwordKey, password);
+    _dbCredsBox?.delete(userNameKey);
+    _dbCredsBox?.delete(passwordKey);
+    _dbCredsBox?.put(userNameKey, userName);
+    _dbCredsBox?.put(passwordKey, password);
+  }
+
+  static clearDbCreds() {
+    _dbCredsBox?.delete(userNameKey);
+    _dbCredsBox?.delete(passwordKey);
   }
 }

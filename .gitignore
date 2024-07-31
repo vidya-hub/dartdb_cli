@@ -5,3 +5,4 @@ dartdb.hive
 dartdb.lock
 pubspec.lock
 start.ps1
+dbcreds.hive
