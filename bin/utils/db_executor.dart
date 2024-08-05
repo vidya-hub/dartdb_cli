@@ -103,7 +103,7 @@ class DbHelper {
     }
   }
 
-  static exitCli() async {
+  static Future<void> exitCli() async {
     await HiveService.closeBox();
     exit(0);
   }

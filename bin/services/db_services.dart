@@ -2,6 +2,7 @@ import 'dart:convert';
 
 import 'package:http/http.dart' as http;
 import './hive_service.dart';
+import '../utils/db_executor.dart';
 
 class DbService {
   static String baseUrl = 'http://localhost:3000';
@@ -20,12 +21,15 @@ class DbService {
       }),
     );
     dynamic responseBody = json.decode(response.body);
-    if (response.statusCode == 200) {
-      HiveService.saveDbCreds(
-        userName: userName,
-        password: password,
-      );
+    if (response.statusCode != 200) {
+      print(responseBody["message"]);
+      await DbHelper.exitCli();
+      return "";
     }
+    HiveService.saveDbCreds(
+      userName: userName,
+      password: password,
+    );
     return response.statusCode == 200
         ? "User Created Successfully"
         : responseBody["message"];
@@ -43,16 +47,16 @@ class DbService {
       }),
     );
     dynamic responseBody = json.decode(response.body);
-    if (response.statusCode == 200) {
-      HiveService.saveDbCreds(
-        userName: userName,
-        password: password,
-      );
+    if (response.statusCode != 200) {
+      print(responseBody["message"]);
+      await DbHelper.exitCli();
+      return "";
     }
-
-    return response.statusCode == 200
-        ? "User Logged In Successfully"
-        : responseBody["message"];
+    HiveService.saveDbCreds(
+      userName: userName,
+      password: password,
+    );
+    return "User Logged In Successfully";
   }
 
   static Future<String> callQuery({
